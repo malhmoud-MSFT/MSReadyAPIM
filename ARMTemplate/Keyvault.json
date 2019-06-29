@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    "KeyVault_Name": {
+    "defaultValue": "MyKeyVault",
+    "type": "string"
+    },
+    "APIM_RG": {
+    "defaultValue": "APIM_RG",
+    "type": "string"
+    },
+    "APIM_InstanceName": {
+    "defaultValue": "APIM_InstanceName",
+    "type": "string"
+    }
+    },
+    "variables": {
+    "APIMManageedIdentityResourceID": "[concat(resourceId(parameters('APIM_RG'), 'Microsoft.ApiManagement/service', parameters('APIM_InstanceName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
+    },
+    "resources": [
+    {
+    "type": "Microsoft.KeyVault/vaults/accessPolicies",
+    "name": "[concat(parameters('KeyVault_Name'), '/add')]",
+    "apiVersion": "2015-06-01",
+    "properties": {
+    "accessPolicies": [{
+    "tenantId": "[reference(variables('APIMManageedIdentityResourceID'), '2015-08-31-PREVIEW').tenantId]",
+    "objectId": "[reference(variables('APIMManageedIdentityResourceID'), '2015-08-31-PREVIEW').principalId]",
+    "permissions": {
+    "secrets": ["get"]
+    }
+    }]
+    }}
+    ]}
